@@ -13,8 +13,10 @@ User=__LOCAL_USER__
 Group=__LOCAL_USER__
 
 # AUTOSSH settings for handling unreliable connections
-# AUTOSSH_GATETIME=0 means autossh won't exit on first connection failure
-Environment="AUTOSSH_GATETIME=0"
+# AUTOSSH_GATETIME: if SSH exits before this many seconds, it's a failure.
+# After repeated rapid failures, autossh exits and systemd handles restart.
+# Default is 30; we use 60 to be more tolerant of transient failures.
+Environment="AUTOSSH_GATETIME=60"
 # Poll interval for connection monitoring (seconds)
 Environment="AUTOSSH_POLL=60"
 # Use autossh's built-in monitoring (-M 0 disables it, we use ServerAlive instead)
