@@ -8,9 +8,9 @@ Wants=network-online.target
 Type=simple
 EnvironmentFile=/etc/phonehome/phonehome.config
 
-# Run as the user who owns the SSH key (set in config file)
-User=${LOCAL_USER}
-Group=${LOCAL_USER}
+# Run as the user who owns the SSH key (substituted during install)
+User=__LOCAL_USER__
+Group=__LOCAL_USER__
 
 # AUTOSSH settings for handling unreliable connections
 # AUTOSSH_GATETIME=0 means autossh won't exit on first connection failure

@@ -92,9 +92,10 @@ sed -e "s|__LOCAL_USER__|${LOCAL_USER}|g" \
 
 sudo chmod 600 /etc/phonehome/phonehome.config
 
-# Install systemd service
+# Install systemd service (substitute LOCAL_USER since systemd doesn't expand env vars in User=)
 echo "Installing systemd service..."
-sudo cp "$SCRIPT_DIR/phonehome.service" /etc/systemd/system/phonehome.service
+sed -e "s|__LOCAL_USER__|${LOCAL_USER}|g" \
+    "$SCRIPT_DIR/phonehome.service" | sudo tee /etc/systemd/system/phonehome.service > /dev/null
 sudo chmod 644 /etc/systemd/system/phonehome.service
 
 # Reload systemd and enable service
