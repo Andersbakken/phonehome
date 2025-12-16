@@ -1,4 +1,7 @@
 # phonehome configuration
+# Local user to run the service as (owns the SSH key)
+LOCAL_USER=__LOCAL_USER__
+
 # Remote server IP address or hostname
 REMOTE_HOST=__REMOTE_HOST__
 

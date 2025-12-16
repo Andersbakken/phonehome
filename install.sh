@@ -4,12 +4,13 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 usage() {
-    echo "Usage: $0 -u <username> -h <remote_host> [-k <ssh_key_path>]"
+    echo "Usage: $0 -u <username> -h <remote_host> [-k <ssh_key_path>] [-l <local_user>]"
     echo ""
     echo "Options:"
     echo "  -u, --user       Username on remote server"
     echo "  -h, --host       Remote server IP address or hostname"
     echo "  -k, --key        Path to SSH key (default: ~/.ssh/id_rsa)"
+    echo "  -l, --local-user Local user to run service as (default: current user)"
     echo "  --help           Show this help message"
     echo ""
     echo "Example:"
@@ -21,6 +22,7 @@ usage() {
 REMOTE_USER=""
 REMOTE_HOST=""
 SSH_KEY="$HOME/.ssh/id_rsa"
+LOCAL_USER="$USER"
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -34,6 +36,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -k|--key)
             SSH_KEY="$2"
+            shift 2
+            ;;
+        -l|--local-user)
+            LOCAL_USER="$2"
             shift 2
             ;;
         --help)
@@ -61,6 +67,7 @@ if [[ ! -f "$SSH_KEY" ]]; then
 fi
 
 echo "Installing phonehome service..."
+echo "  Local user: $LOCAL_USER"
 echo "  Remote host: $REMOTE_HOST"
 echo "  Remote user: $REMOTE_USER"
 echo "  SSH key: $SSH_KEY"
@@ -77,7 +84,8 @@ sudo mkdir -p /etc/phonehome
 
 # Generate config from template
 echo "Creating configuration file..."
-sed -e "s|__REMOTE_HOST__|${REMOTE_HOST}|g" \
+sed -e "s|__LOCAL_USER__|${LOCAL_USER}|g" \
+    -e "s|__REMOTE_HOST__|${REMOTE_HOST}|g" \
     -e "s|__REMOTE_USER__|${REMOTE_USER}|g" \
     -e "s|__SSH_KEY__|${SSH_KEY}|g" \
     "$SCRIPT_DIR/phonehome.config.template" | sudo tee /etc/phonehome/phonehome.config > /dev/null
