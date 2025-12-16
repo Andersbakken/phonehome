@@ -1,0 +1,51 @@
+[Unit]
+Description=AutoSSH reverse tunnel for remote SSH access (phonehome)
+Documentation=man:autossh(1)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/phonehome/phonehome.config
+
+# AUTOSSH settings for handling unreliable connections
+# AUTOSSH_GATETIME=0 means autossh won't exit on first connection failure
+Environment="AUTOSSH_GATETIME=0"
+# Poll interval for connection monitoring (seconds)
+Environment="AUTOSSH_POLL=60"
+# Use autossh's built-in monitoring (-M 0 disables it, we use ServerAlive instead)
+Environment="AUTOSSH_PORT=0"
+
+# The autossh command:
+# -M 0: Disable autossh's monitoring port, rely on SSH's ServerAlive
+# -N: No remote command (just forwarding)
+# -T: Disable pseudo-terminal allocation
+# -o ServerAliveInterval=30: Send keepalive every 30 seconds
+# -o ServerAliveCountMax=3: Disconnect after 3 failed keepalives (90 sec)
+# -o ExitOnForwardFailure=yes: Exit if port forwarding fails
+# -o StrictHostKeyChecking=accept-new: Accept new host keys automatically
+# -o ConnectTimeout=10: Connection timeout
+# -R *:${REMOTE_PORT}:localhost:${LOCAL_PORT}: Remote forward binding to all interfaces
+ExecStart=/usr/bin/autossh -M 0 -N -T \
+    -o "ServerAliveInterval=30" \
+    -o "ServerAliveCountMax=3" \
+    -o "ExitOnForwardFailure=yes" \
+    -o "StrictHostKeyChecking=accept-new" \
+    -o "ConnectTimeout=10" \
+    -o "IdentityFile=${SSH_KEY}" \
+    -R "*:${REMOTE_PORT}:localhost:${LOCAL_PORT}" \
+    ${REMOTE_USER}@${REMOTE_HOST}
+
+# Restart policy for handling network failures
+Restart=always
+# Wait 30 seconds before restarting after failure
+RestartSec=30
+
+# Security hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

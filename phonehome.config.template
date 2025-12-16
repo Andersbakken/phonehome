@@ -1,0 +1,15 @@
+# phonehome configuration
+# Remote server IP address or hostname
+REMOTE_HOST=__REMOTE_HOST__
+
+# Username on remote server
+REMOTE_USER=__REMOTE_USER__
+
+# Remote port to forward to (where you'll connect from remote network)
+REMOTE_PORT=2222
+
+# Local SSH port to forward
+LOCAL_PORT=22
+
+# SSH key to use (optional, leave empty for default)
+SSH_KEY=__SSH_KEY__
